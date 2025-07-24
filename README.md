@@ -53,16 +53,17 @@ A simple URL shortener that converts long URLs into short ones. When someone cli
 1. Go to AWS Console → S3
 2. Click "Create bucket"
 3. Bucket name: Choose a unique name (e.g., `my-url-shortener-app-123`)
-4. Region: Choose your preferred region
+4. choose "ACLs enabled"
 5. **UNCHECK** "Block all public access"
 6. Check the acknowledgment box
-7. Click "Create bucket"
+7. Enable Bucket Versioning
+8. Click "Create bucket"
 
 ### Set Bucket Policy
 1. Go to "Permissions" tab
 2. Scroll to "Bucket policy"
 3. Click "Edit"
-4. Paste this policy (replace `YOUR-BUCKET-NAME` with your actual bucket name):
+4. Paste this policy:
 ```json
 {
     "Version": "2012-10-17",
@@ -72,7 +73,7 @@ A simple URL shortener that converts long URLs into short ones. When someone cli
             "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/*"
+            "Resource": "arn:aws:s3:::my-url-shortener-app-123/*"
         }
     ]
 }
