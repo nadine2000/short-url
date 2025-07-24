@@ -18,8 +18,11 @@ A simple URL shortener that converts long URLs into short ones. When someone cli
 3. Choose "Author from scratch"
 4. Function name: `url-shortener-function`
 5. Runtime: Python 3.13
-6. Execution role: Use existing role → `labrole`
-7. Click "Create function"
+6. Click on Change default execution role
+7. Choose Use existing role
+8. Form the existing role list choose `labrole`
+9. Leave everything else as default
+10. Click "Create function"
 
 ### Upload Lambda Code
 1. In the Lambda function page, scroll to "Code source"
