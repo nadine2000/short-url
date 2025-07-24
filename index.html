@@ -113,7 +113,7 @@
         <div class="result-section" id="resultSection">
             <h3 class="result-title">Your shortened URL is ready!</h3>
             <div class="short-url-container">
-                <span class="short-url" id="shortUrl"></span>
+                <a class="short-url" id="shortUrl" href="#" target="_blank" rel="noopener noreferrer"></a>
             </div>
         </div>
 
@@ -201,6 +201,7 @@
 
         function displayResult(shortUrl) {
             shortUrlElement.textContent = shortUrl;
+            shortUrlElement.href = shortUrl;
             resultSection.classList.add('show');
         }
 
