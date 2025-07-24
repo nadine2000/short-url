@@ -1,10 +1,6 @@
 # URL Shortener App - Setup Guide
 A simple URL shortener that converts long URLs into short ones. When someone clicks the short URL, they get redirected to the original long URL.
 
-## Files You Need
-- `index.html` - Frontend web page
-- `lambda_function.py` - Backend Python code for AWS Lambda
-
 ## Step 1: Create DynamoDB Table
 
 1. Go to AWS Console → DynamoDB
