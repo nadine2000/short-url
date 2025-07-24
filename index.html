@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 250px;
+        }
+
+        .shorten-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .result-title {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .short-url-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e1e5e9;
+            flex-wrap: wrap;
+        }
+
+        .short-url {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: 600;
+            word-break: break-all;
+            min-width: 200px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 URL Shortener</h1>
+        </div>
+
+        <form id="urlForm">
+                <input 
+                    type="url" 
+                    class="url-input" 
+                    id="urlInput" 
+                    placeholder="Enter your long URL here"
+                    required
+                >
+                <button type="submit" class="shorten-btn" id="shortenBtn">
+                    Shorten URL
+                </button>
+        </form>
+
+        <div class="result-section" id="resultSection">
+            <h3 class="result-title">Your shortened URL is ready!</h3>
+            <div class="short-url-container">
+                <span class="short-url" id="shortUrl"></span>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+        const LAMBDA_FUNCTION_URL = 'https://ke4k2apergvl4yzqykoibzn3ii0fhbpw.lambda-url.us-west-2.on.aws/';
+        
+        // DOM elements
+        const urlForm = document.getElementById('urlForm');
+        const urlInput = document.getElementById('urlInput');
+        const shortenBtn = document.getElementById('shortenBtn');
+        const resultSection = document.getElementById('resultSection');
+        const shortUrlElement = document.getElementById('shortUrl');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Form submission handler
+        urlForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await shortenUrl();
+        });
+
+        // URL input validation
+        urlInput.addEventListener('input', () => {
+            hideError();
+            hideResult();
+        });
+
+        async function shortenUrl() {
+            const longUrl = urlInput.value.trim();
+            
+            // Validate URL
+            if (!longUrl) {
+                showError('Please enter a URL');
+                return;
+            }
+
+            if (!isValidUrl(longUrl)) {
+                showError('Please enter a valid URL (must start with http:// or https://)');
+                return;
+            }
+
+            hideError();
+            hideResult();
+
+            try {
+                const response = await fetch(LAMBDA_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: longUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const shortUrl = `${LAMBDA_FUNCTION_URL}/${data.short_id}`;
+                displayResult(shortUrl);
+                
+            } catch (error) {
+                console.error('Error shortening URL:', error);
+                showError(`Failed to shorten URL: ${error.message}`);
+            }
+        }
+
+        function isValidUrl(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function displayResult(shortUrl) {
+            shortUrlElement.textContent = shortUrl;
+            resultSection.classList.add('show');
+        }
+
+        function hideResult() {
+            resultSection.classList.remove('show');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('show');
+        }
+
+        window.addEventListener('load', () => {
+            urlInput.focus();
+        });
+
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                shortenUrl();
+            }
+        });
+    </script>
+</body>
+</html>
